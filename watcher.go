@@ -5,8 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
-
+	"github.com/gnenux/xlog"
 	"go.etcd.io/etcd/client"
 )
 
@@ -63,7 +62,7 @@ func (w *Watcher) Watch() {
 	for {
 		resp, err := api.Get(context.Background(), w.RootPath, &client.GetOptions{Recursive: true})
 		if err != nil {
-			glog.Error(err)
+			xlog.Error(err)
 			continue
 		}
 

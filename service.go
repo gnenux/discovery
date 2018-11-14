@@ -7,8 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang/glog"
-
+	"github.com/gnenux/xlog"
 	"go.etcd.io/etcd/client"
 )
 
@@ -22,8 +21,8 @@ type Service struct {
 type ServerInfo struct {
 	Id   int    `json:"id"`   // 服务器ID
 	Name string `json:"name"` //服务器name
-	IP   string `json:"ip"`   // 对外连接服务的 IP
-	Port int    `json:"port"` // 对外服务端口，本机或者端口映射后得到的
+	IP   string `json:"ip"`   // 对外连接服务的IP
+	Port int    `json:"port"` // 对外服务端口
 }
 
 func (s *ServerInfo) String() string {
@@ -56,16 +55,15 @@ func (s *Service) HeartBeat() {
 	serviceId := s.Info.String()
 
 	for {
-		glog.Error("HeartBeat:", s.Info.Id)
 		key := s.RootPath + "/service_" + serviceId
 		value, _ := json.Marshal(s.Info)
 
 		_, err := api.Set(context.Background(), key, string(value), &client.SetOptions{
-			TTL: time.Second * 60,
-		}) // 调用 API， 设置该 key TTL 为60秒。
+			TTL: time.Second * 60, //设置该 key TTL 为60秒,类似redis的expire time
+		})
 
 		if err != nil {
-			glog.Error("Error update workerInfo:", err)
+			xlog.Errorf("update [%s] error:%s\n", serviceId, err.Error())
 		}
 		time.Sleep(time.Second * 15)
 	}
